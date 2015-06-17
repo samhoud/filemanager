@@ -1,11 +1,11 @@
 <?php
-
 namespace Samhoud\FileManager;
 
 use Illuminate\Support\ServiceProvider;
 
 class FileManagerServiceProvider extends ServiceProvider
 {
+
     /**
      * Bootstrap the application services.
      *
@@ -14,7 +14,7 @@ class FileManagerServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../../config/filemanager.php' => config_path('filemanager.php'),
+            __DIR__ . '/../../config/filemanager.php' => config_path('filemanager.php'),
         ], 'config');
     }
 
@@ -26,26 +26,23 @@ class FileManagerServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../../config/filemanager.php', 'filemanager'
+            __DIR__ . '/../../config/filemanager.php', 'filemanager'
         );
-
-        $this->app->singleton('filesystem', function()
-        {
+        $this->app->singleton('filesystem', function () {
             return new FilesystemManager($this->app);
         });
-        $this->app->bindShared(ImageManager::class ,function($app)
-        {
+        $this->app->bindShared(ImageManager::class, function ($app) {
             $disk = $this->getDisk('imagemanagerdisk');
             $filesystem = $this->app['filesystem']->disk($disk);
             $settings = ['uploadSettings' => $this->app['config']->get("filemanager.uploadlocation")];
+
             return new ImageManager($filesystem, $settings, new \Intervention\Image\ImageManager());
         });
-
-        $this->app->bindShared(FileManager::class ,function($app)
-        {
+        $this->app->bindShared(FileManager::class, function ($app) {
             $disk = $this->getDisk('filemanagerdisk');
             $filesystem = $this->app['filesystem']->disk($disk);
             $settings = ['uploadSettings' => $this->app['config']->get("filemanager.uploadlocation")];
+
             return new FileManager($filesystem, $settings);
         });
     }
@@ -53,6 +50,7 @@ class FileManagerServiceProvider extends ServiceProvider
     private function getDisk($name)
     {
         $configItem = $this->app['config']->get("filemanager.{$name}");
+
         return ($configItem ? $configItem : $this->app['config']->get("filesystems.default"));
     }
 }
