@@ -6,7 +6,7 @@ It provides a basic filemanager and an image filemanager, for validation of uplo
 
 ## Requirements
 
-- Laravel > 5.0
+- Laravel >= 5.0
 - Intervention/Image (https://github.com/Intervention/image)
 
 
