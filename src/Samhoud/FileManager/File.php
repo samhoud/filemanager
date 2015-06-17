@@ -1,10 +1,6 @@
 <?php
 namespace Samhoud\FileManager;
 
-    /**
-     * Class File
-     * @package Samhoud\FileManager
-     */
 /**
  * Class File
  * @package Samhoud\FileManager
