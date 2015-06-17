@@ -75,4 +75,8 @@ class FilesystemAdapter extends \Illuminate\Filesystem\FilesystemAdapter{
 
 		return $dirname;
 	}
+
+	public function getFileSystemRootPath(){
+		return $this->getDriver()->getAdapter()->getPathPrefix();
+	}
 }
