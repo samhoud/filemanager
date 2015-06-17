@@ -27,7 +27,14 @@ Add the github repository and the package to your `composer.json` and run ```com
     }
 }
 ```
-Add the service provider to ```config/app.php``` in your Laravel project
+Add the service provider to ```config/app.php``` in your Laravel project:
+
+```php
+'providers' => [
+// ...
+Samhoud\FileManager\FileManagerServiceProvider::class,
+];
+```
 
 ## Configuration
 
@@ -75,19 +82,19 @@ This will upload your files for example to: ```filesystemroot/2015/06/```
 // Get the FileManager from container.
 $fileManager = app(Samhoud\FileManager\FileManager::class);
 
-// Get the ImageFileManager from container.
-$imageFileManager = app(Samhoud\FileManager\ImageFileManager::class);
+// Get the ImageManager from container.
+$imageManager = app(Samhoud\FileManager\ImageManager::class);
 
 // Change the filesystem
 $disk = app('filesystem')->disk('myDisk');
-$imageFileManager->setFileSystem($this->app['filesystem']->disk($disk));
+$imageManager->setFileSystem($this->app['filesystem']->disk($disk));
 
 
 // Change the upload location
  $settings = [
  	'uploadSettings' => ['path' => 'new/location']  
  	];
-$imageFileManager->setSettings($settings);
+$imageManager->setSettings($settings);
 
 // Get a list of files in the root directory and the subdirectories of the filesystem
 $fileManager->listFiles();
@@ -128,12 +135,12 @@ $fileManager->upload($file, arguments);
 
 // Upload image
 $image = Request::get('uploaded_image');
-$imageFileManager->upload($image);
+$imageManager->upload($image);
 
 //By default, non-image uploads are passed to the underlying basic FileManager. To prevent this, disable the upload of non-image files:
 $nonImage = Request::get('uploaded_non_image');
-$imageFileManager->uploadNonImages = false;
-$imageFileManager->upload($nonImage); //false
+$imageManager->uploadNonImages = false;
+$imageManager->upload($nonImage); //false
 
 
 // Controller example to display images in a directory
