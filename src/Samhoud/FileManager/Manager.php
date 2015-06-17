@@ -17,6 +17,11 @@ abstract class Manager implements Contracts\FileManager{
 	protected $filesystem;
 
 	/**
+	 * @var
+	 */
+	protected $publicRoot = "";
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
@@ -29,7 +34,7 @@ abstract class Manager implements Contracts\FileManager{
 		}
 
 		$this->settings     = $settings;
-		$this->filesystem   = $filesystem;
+		$this->setFilesystem($filesystem);
 	}
 
 	/**
@@ -37,11 +42,26 @@ abstract class Manager implements Contracts\FileManager{
 	 */
 	public function setFilesystem(Filesystem $filesystem){
 		$this->filesystem = $filesystem;
+		$this->updatePublicRoot();
 	}
 
+	/**
+	 * @param array $settings
+	 */
 	public function setSettings(array $settings){
 		$this->settings = $settings;
 	}
+
+	/**
+	 *
+	 */
+	public function updatePublicRoot(){
+		if(str_contains($this->filesystem->getFileSystemRootPath(),public_path())){
+			$this->publicRoot = str_replace(public_path(), "", $this->filesystem->getFileSystemRootPath());
+		}
+		$this->publicRoot = "";
+	}
+
 
 
 	/**

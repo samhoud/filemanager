@@ -279,9 +279,13 @@ class FileManager extends Manager{
 	 * @return File
 	 */
 	protected function makeFile($filename){
-		$file = $this->filesystem->getFileInfo($filename);
+		return new File($this->getFileInfo($filename));
+	}
 
-		return new File($file);
+	protected function getFileInfo($filename){
+		$file = $this->filesystem->getFileInfo($filename);
+		$file['fileRoot'] = $this->publicRoot;
+		return $file;
 	}
 
 	/**
