@@ -25,7 +25,7 @@ class File implements Contracts\FileSystemObject, Contracts\File{
 	/**
 	 * @var string
 	 */
-	public $fileRoot = "/uploads/";
+	public $fileRoot = "";
 	/**
 	 * @var string
 	 */
