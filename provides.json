@@ -1,0 +1,5 @@
+{
+  "providers": [
+    "Samhoud\FileManager\FileManagerServiceProvider"
+  ]
+}

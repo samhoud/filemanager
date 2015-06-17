@@ -26,7 +26,7 @@ Add the github repository and the package to your `composer.json` and run ```com
         "samhoud/filemanager": "dev-master"
     }
 }
-
+```
 Add the service provider to ```config/app.php``` in your Laravel project
 
 ## Configuration
