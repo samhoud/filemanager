@@ -9,4 +9,6 @@ interface Directory
     public function hasDirectories();
 
     public function hasFiles();
+
+    public function flatten();
 }

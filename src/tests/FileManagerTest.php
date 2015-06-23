@@ -4,6 +4,7 @@ namespace tests;
 use Illuminate\Support\Collection;
 use \Mockery as m;
 use Samhoud\FileManager\FileManager;
+use Samhoud\FileManager\File;
 
 class FileManagerTest extends \PHPUnit_Framework_TestCase
 {
@@ -368,5 +369,58 @@ class FileManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $result->items->get(0)->items->get(0)->items->count());
 
         $this->assertEquals('image', $result->items->get(0)->items->get(0)->items->get(0)->filename);
+    }
+
+
+    public function testFlat(){
+        $this->basicExpectations();
+        $fileManager = new FileManager($this->filesystem);
+
+        $filesData1 =
+            [
+                'dirname'   => 'path/to/files',
+                'basename'  => 'file1.txt',
+                'extension' => 'txt',
+                'filename'  => 'file1',
+                'path'      => '2015/11',
+                'fileRoot'  => '/uploads/'
+            ];
+        $filesData2 =
+            [
+                'dirname'   => 'path/to/files',
+                'basename'  => 'file2.txt',
+                'extension' => 'txt',
+                'filename'  => 'file2',
+                'path'      => '2015/12/',
+                'fileRoot'  => '/uploads/'
+            ];
+
+
+        $this->filesystem->shouldReceive('getFileInfo')->once()->with("file1.txt")->andReturn($filesData1);
+        $this->filesystem->shouldReceive('getFileInfo')->once()->with("file2.txt")->andReturn($filesData2);
+        $this->filesystem->shouldReceive('files')->once()->with("path/to/files")->andReturn(null);
+        $this->filesystem->shouldReceive('files')->once()->with("2015")->andReturn(null);
+        $this->filesystem->shouldReceive('files')->once()->with("2015/12")->andReturn(['file2.txt']);
+        $this->filesystem->shouldReceive('files')->once()->with("2015/11")->andReturn(['file1.txt']);
+
+        //$this->filesystem->shouldReceive('files')->times(3)->with("path/to/files", '2015', '2015/12')->andReturn(null,null,$fileNames);
+        $this->filesystem->shouldReceive('directories')->once()->with("path/to/files")->andReturn(['2015']);
+        $this->filesystem->shouldReceive('directories')->once()->with("2015")->andReturn(['2015/11', '2015/12']);
+        $this->filesystem->shouldReceive('directories')->once()->with("2015/11")->andReturn(null);
+        $this->filesystem->shouldReceive('directories')->once()->with("2015/12")->andReturn(null);
+
+        $fileList = $fileManager->listFiles("path/to/files");
+
+        $file1 = new File($filesData1);
+        $file2 = new File($filesData2);
+        $files = new Collection([$file1,$file2]);
+
+        $result = $fileManager->flatten($fileList);
+        $this->assertInstanceOf('Illuminate\Support\Collection', $result);
+        $this->assertEquals(2, $result->count());
+        $this->assertEquals('file1.txt', $result->get(0)->basename);
+        $this->assertEquals('file2.txt', $result->get(1)->basename);
+
+
     }
 }

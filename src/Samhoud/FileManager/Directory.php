@@ -85,4 +85,15 @@ class Directory implements Contracts\FilesystemObject, Contracts\Directory
             }
         });
     }
+
+    public function flatten(){;
+        $files = $this->hasFiles();
+        $directories    = $this->hasDirectories();
+        if($directories){
+            foreach($directories as $subDirectory){
+                $files = $files->merge($subDirectory->flatten());
+            }
+        }
+        return $files;
+    }
 }

@@ -74,7 +74,7 @@ class DirectoryTest extends \PHPUnit_Framework_TestCase
 
     public function testHasFiles()
     {
-        $subdir = $file = m::mock('Samhoud\FileManager\Directory');
+        $subdir = m::mock('Samhoud\FileManager\Directory');
         $file = m::mock('Samhoud\FileManager\File');
         $items = new Collection([$subdir, $file]);
         $directory = new Directory('', '', $items);
@@ -84,10 +84,29 @@ class DirectoryTest extends \PHPUnit_Framework_TestCase
 
     public function testHasNoFiles()
     {
-        $subdir = $file = m::mock('Samhoud\FileManager\Directory');
+        $subdir = m::mock('Samhoud\FileManager\Directory');
         $items = new Collection([$subdir]);
         $directory = new Directory('', '', $items);
         $result = $directory->hasFiles();
         $this->assertEquals(0, $result->count());
+    }
+
+
+    public function testFlatten()
+    {
+        $file1 = m::mock('Samhoud\FileManager\File');
+        $file2 = m::mock('Samhoud\FileManager\File');
+        $file3 = m::mock('Samhoud\FileManager\File');
+        $file4 = m::mock('Samhoud\FileManager\File');
+
+        $subdir1sub = new Directory('c', 'a/b/c', new Collection([$file1, $file2]));
+        $subdir1    = new Directory('b', 'a/b', new Collection([$subdir1sub]));
+        $subdir2    = new Directory('d', 'a/d', new Collection([$file3]));
+
+        $directory  = new Directory('a', 'a/', new Collection([$file4, $subdir1, $subdir2]));
+
+        $result = $directory->flatten();
+
+        $this->assertEquals($result->count(), 4);
     }
 }

@@ -122,6 +122,15 @@ class FileManager extends Manager
         return $this->isAllowedType($file, 'image');
     }
 
+    /**
+     * @param Contracts\Directory $directory
+     * @return Collection files in directory and subdirectories
+     */
+    public function flatten(Contracts\Directory $directory){
+
+        return $directory->flatten();
+    }
+
 
     /**
      *
