@@ -78,13 +78,13 @@ abstract class Manager implements Contracts\FileManager
     public function getSettings($key = null, $settingKey = null)
     {
         $settings = $this->settings;
-        if($key !== null){
+        if ($key !== null) {
             $settings = $this->getSetting($settings, $key);
             if ($settings !== null && $settingKey !== null) {
-
                 $settings = $this->getSetting($settings, $settingKey);
             }
         }
+
         return $settings;
     }
 
@@ -93,14 +93,15 @@ abstract class Manager implements Contracts\FileManager
      * @param $key
      * @return null
      */
-    protected function getSetting($settings, $key){
-        if(is_array($settings) && array_key_exists($key, $settings)){
-
+    protected function getSetting($settings, $key)
+    {
+        if (is_array($settings) && array_key_exists($key, $settings)) {
             return $settings[$key];
         }
         if (!is_array($settings) && $settings->has($key)) {
             return $settings->get($key);
         }
+
         return null;
     }
 
@@ -112,14 +113,15 @@ abstract class Manager implements Contracts\FileManager
     {
         $this->publicRoot = "";
         if (str_contains($this->filesystem->getFileSystemRootPath(), Utils::publicPath())) {
-          $this->publicRoot = str_replace(Utils::publicPath(), "", $this->filesystem->getFileSystemRootPath());
+            $this->publicRoot = str_replace(Utils::publicPath(), "", $this->filesystem->getFileSystemRootPath());
         }
     }
 
     /**
      * @return string
      */
-    public function getPublicRoot(){
+    public function getPublicRoot()
+    {
         return $this->publicRoot;
     }
 

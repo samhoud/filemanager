@@ -56,9 +56,7 @@ class FileManager extends Manager
         if (array_key_exists('path', $uploadSettings)) {
             $path = $uploadSettings['path'];
         }
-
         if ($path === null) {
-
             throw new \Exception('cannot create path name. Incorrect configuration');
         }
 
@@ -126,8 +124,8 @@ class FileManager extends Manager
      * @param Contracts\Directory $directory
      * @return Collection files in directory and subdirectories
      */
-    public function flatten(Contracts\Directory $directory){
-
+    public function flatten(Contracts\Directory $directory)
+    {
         return $directory->flatten();
     }
 
@@ -231,6 +229,7 @@ class FileManager extends Manager
     public function listImages($path = null)
     {
         $files = $this->getFilesInDirectory($path, 'image');
+
         return $files;
     }
 
@@ -241,9 +240,7 @@ class FileManager extends Manager
      */
     protected function getFilesInPath($path = null, $type = null)
     {
-
         $files = $this->filesystem->files($path);
-
         if (count($files) == 0) {
             return null;
         }
@@ -289,7 +286,6 @@ class FileManager extends Manager
         if ($type === null) {
             return true;
         }
-
         if ($file instanceof UploadedFile) {
             $extension = $file->guessClientExtension();
             $mimetype = $file->getClientMimeType();
@@ -301,6 +297,7 @@ class FileManager extends Manager
         if (array_key_exists($extension, $mimes)) {
             return $mimes[$extension] == $mimetype;
         }
+
         return false;
     }
 
@@ -314,7 +311,6 @@ class FileManager extends Manager
         $files = $this->getFilesInPath($path, $type);
         $directory = new Directory($this->getBaseName($path), $path, new Collection($files, false));
         $directories = $this->filesystem->directories($path);
-
         if (count($directories) > 0) {
             foreach ($directories as $childDirectory) {
                 $directory->addItem($this->getFilesInDirectory($childDirectory, $type));
@@ -351,6 +347,7 @@ class FileManager extends Manager
             $filename = $path . str_replace('.' . $ext, '_' . $i . '.' . $ext, $filename);
             $i++;
         }
+
         return $filename;
     }
 }
