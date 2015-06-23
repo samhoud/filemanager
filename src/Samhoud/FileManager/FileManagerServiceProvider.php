@@ -37,7 +37,7 @@ class FileManagerServiceProvider extends ServiceProvider
             $filesystem = $this->app['filesystem']->disk($disk);
             $settings = ['uploadSettings' => $this->app['config']->get("filemanager.uploadlocation")];
 
-            return new ImageManager($filesystem, new Collection($settings), new \Intervention\Image\ImageManager());
+            return new ImageManager($filesystem, new \Intervention\Image\ImageManager(), new Collection($settings));
         });
         $this->app->bindShared(FileManager::class, function ($app) {
             $disk = $this->getDisk('filemanagerdisk');
