@@ -91,9 +91,9 @@ $imageManager->setFileSystem($this->app['filesystem']->disk($disk));
 
 
 // Change the upload location
- $settings = [
+ $settings = new Collection([
  	'uploadSettings' => ['path' => 'new/location']  
- 	];
+ 	]);
 $imageManager->setSettings($settings);
 
 // Get a list of files in the root directory and the subdirectories of the filesystem
@@ -102,9 +102,13 @@ $fileManager->listFiles();
 // Get a list of files in a directory in a subdirectory (and subdirectories of this directory) of the filesystem
 $fileManager->listFiles('logs/');
 
-// Get a list of images in a directory (this works on the basic FileManager as well)
+// Get a list of images in a directory and subdirectories (this works on the basic FileManager as well)
 $fileManager->listImages();
 $fileManager->listImages('uploads/');
+
+// Get a list of files only. This is a list of files in directories and subdirectories
+$fileManager->listFiles()->flatten();
+$fileManager->listImages()->flatten();
 
 // Check if directory exists
 $fileManager->directoryExists('path/to/dir');
@@ -127,9 +131,9 @@ $file = Request::get('uploaded_file');
 $fileManager->upload($file);
 
 // Upload file to custom location
-$arguments = [
-	'uploadSettings' => ['path' => 'custom/location']  
-]
+$arguments = new Collection([
+		'uploadSettings' => ['path' => 'custom/location']
+	]);
 $file = Request::get('uploaded_file');
 $fileManager->upload($file, arguments);
 
@@ -157,7 +161,7 @@ class MediaController{
 	}
 
 	public function showImages(){
-		$images = $this->fileManager->listImages();
+		$images = $this->fileManager->listImages()->flatten();
 		return view('media.images')->with(['images' => $images]);
 	}
 
