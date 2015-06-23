@@ -1,6 +1,7 @@
 <?php
 namespace Samhoud\FileManager;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
 class FileManagerServiceProvider extends ServiceProvider
@@ -36,14 +37,14 @@ class FileManagerServiceProvider extends ServiceProvider
             $filesystem = $this->app['filesystem']->disk($disk);
             $settings = ['uploadSettings' => $this->app['config']->get("filemanager.uploadlocation")];
 
-            return new ImageManager($filesystem, $settings, new \Intervention\Image\ImageManager());
+            return new ImageManager($filesystem, new Collection($settings), new \Intervention\Image\ImageManager());
         });
         $this->app->bindShared(FileManager::class, function ($app) {
             $disk = $this->getDisk('filemanagerdisk');
             $filesystem = $this->app['filesystem']->disk($disk);
             $settings = ['uploadSettings' => $this->app['config']->get("filemanager.uploadlocation")];
 
-            return new FileManager($filesystem, $settings);
+            return new FileManager($filesystem, new Collection($settings));
         });
     }
 

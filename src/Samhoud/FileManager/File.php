@@ -5,7 +5,7 @@ namespace Samhoud\FileManager;
  * Class File
  * @package Samhoud\FileManager
  */
-class File implements Contracts\FileSystemObject, Contracts\File
+class File implements Contracts\FilesystemObject, Contracts\File
 {
 
     /**
@@ -89,6 +89,6 @@ class File implements Contracts\FileSystemObject, Contracts\File
      */
     public function url()
     {
-        return url($this->fileRoot . $this->path);
+        return Utils::makeUrl($this->fileRoot . $this->path);
     }
 }

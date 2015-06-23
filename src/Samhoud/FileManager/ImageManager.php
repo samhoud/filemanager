@@ -1,7 +1,8 @@
 <?php
 namespace Samhoud\FileManager;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
+use Samhoud\FileManager\Contracts\Filesystem;
 
 /**
  * Class ImageManager
@@ -10,7 +11,10 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 class ImageManager extends FileManager implements Contracts\ImageFileManager
 {
 
-    protected $uploadNonImages = true;
+    /**
+     * @var bool
+     */
+    public $uploadNonImages = true;
 
     /**
      * @var \Intervention\Image\ImageManager
@@ -20,11 +24,12 @@ class ImageManager extends FileManager implements Contracts\ImageFileManager
     /**
      * @param Filesystem $filesystem
      * @param \Intervention\Image\ImageManager $imageHandler
+     * @param array $settings
      */
     public function __construct(
         Filesystem $filesystem,
-        array $settings = [],
-        \Intervention\Image\ImageManager $imageHandler
+        \Intervention\Image\ImageManager $imageHandler,
+        Collection $settings = null
     ) {
         $this->imageHandler = $imageHandler;
         parent::__construct($filesystem, $settings);
@@ -41,12 +46,13 @@ class ImageManager extends FileManager implements Contracts\ImageFileManager
      */
     public function upload($file, array $arguments = null)
     {
-        $this->checkUploadLocation($this->path($arguments));
+        $path = $path = $this->path($arguments);
+        $this->checkUploadLocation($path);
         if ($this->isImage($file)) {
             $contents = $this->imageHandler->make($file);
             $contents->encode();
 
-            return $this->writeFile($this->makeUploadFileName($file), (string) $contents);
+            return $this->writeFile($this->makeUploadFileName($file, $path), (string) $contents);
         }
 
         return ($this->uploadNonImages ? parent::upload($file, $arguments) : false);

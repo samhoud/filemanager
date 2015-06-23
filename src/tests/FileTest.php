@@ -4,17 +4,10 @@ namespace tests;
 use Samhoud\FileManager\File;
 use \Mockery as m;
 
-function url() {
-    return FileTest::$functions->url();
-}
-
-
 class FileTest extends \PHPUnit_Framework_TestCase
 {
-    public static $functions;
     private $file;
     public function setUp() {
-        self::$functions = m::mock();
 
         $args = [
             'dirname'   => 'tests/images',
@@ -27,10 +20,12 @@ class FileTest extends \PHPUnit_Framework_TestCase
         $this->file = new File($args);
     }
 
+
     public function tearDown()
     {
         m::close();
     }
+
 
     public function testSetFileInfoFromPath()
     {
@@ -58,7 +53,10 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testUrl()
     {
-        $this->assertEquals('/uploads/2015/12/', $this->file->fileRoot.$this->file->path);
+        $utils  = m::mock('alias:Samhoud\FileManager\Utils');
+        $utils->shouldReceive('makeUrl')->with('/uploads/2015/12/')->andReturn('http:///site.com/uploads/2015/12/');
+        $result = $this->file->url();
+        $this->assertEquals('http:///site.com/uploads/2015/12/', $result);
     }
 
 }

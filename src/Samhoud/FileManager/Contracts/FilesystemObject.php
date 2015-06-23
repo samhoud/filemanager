@@ -1,7 +1,7 @@
 <?php
 namespace Samhoud\FileManager\Contracts;
 
-interface FileSystemObject
+interface FilesystemObject
 {
 
     public function isFile();

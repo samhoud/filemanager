@@ -1,7 +1,8 @@
 <?php
 namespace Samhoud\FileManager;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
+use Samhoud\FileManager\Contracts\Filesystem;
 
 /**
  * Class Manager
@@ -21,17 +22,21 @@ abstract class Manager implements Contracts\FileManager
     protected $publicRoot = "";
 
     /**
-     * @var array
+     * @var Collection
      */
     protected $settings;
 
     /**
      * @param Filesystem $filesystem
+     * @param Collection $settings
      */
-    public function __construct(Filesystem $filesystem, array $settings = [])
+    public function __construct(Filesystem $filesystem, Collection $settings = null)
     {
-        if ($settings == []) {
-            $settings = ['path' => ""];
+        if ($settings === null) {
+            $settings = [
+                'uploadSettings' => ['path' => "."],
+            ];
+            $settings = new Collection($settings);
         }
         $this->settings = $settings;
         $this->setFilesystem($filesystem);
@@ -39,6 +44,7 @@ abstract class Manager implements Contracts\FileManager
 
     /**
      * @param Filesystem $filesystem
+     * @return mixed|void
      */
     public function setFilesystem(Filesystem $filesystem)
     {
@@ -46,31 +52,82 @@ abstract class Manager implements Contracts\FileManager
         $this->updatePublicRoot();
     }
 
+
     /**
-     * @param array $settings
+     * @return Filesystem
      */
-    public function setSettings(array $settings)
+    public function getFilesystem()
+    {
+        return $this->filesystem;
+    }
+
+    /**
+     * @param array|Collection $settings
+     */
+    public function setSettings(Collection $settings)
     {
         $this->settings = $settings;
     }
 
+
     /**
-     *
+     * @param null|string $key
+     * @param null|string $settingKey
+     * @return mixed
+     */
+    public function getSettings($key = null, $settingKey = null)
+    {
+        $settings = $this->settings;
+        if($key !== null){
+            $settings = $this->getSetting($settings, $key);
+            if ($settings !== null && $settingKey !== null) {
+
+                $settings = $this->getSetting($settings, $settingKey);
+            }
+        }
+        return $settings;
+    }
+
+    /**
+     * @param array|Collection $settings
+     * @param $key
+     * @return null
+     */
+    protected function getSetting($settings, $key){
+        if(is_array($settings) && array_key_exists($key, $settings)){
+
+            return $settings[$key];
+        }
+        if (!is_array($settings) && $settings->has($key)) {
+            return $settings->get($key);
+        }
+        return null;
+    }
+
+    /**
+     * update root
+     * @return void
      */
     public function updatePublicRoot()
     {
-        if (str_contains($this->filesystem->getFileSystemRootPath(), public_path())) {
-            $this->publicRoot = str_replace(public_path(), "", $this->filesystem->getFileSystemRootPath());
-        }
         $this->publicRoot = "";
+        if (str_contains($this->filesystem->getFileSystemRootPath(), Utils::publicPath())) {
+          $this->publicRoot = str_replace(Utils::publicPath(), "", $this->filesystem->getFileSystemRootPath());
+        }
     }
 
+    /**
+     * @return string
+     */
+    public function getPublicRoot(){
+        return $this->publicRoot;
+    }
 
     /**
      *
      * get upload path
      *
-     * @param null|array $uploadSettings
+     * @param null|array $arguments
      * @return string upload path
      * @throws \Exception if no path is set, throw exception
      */

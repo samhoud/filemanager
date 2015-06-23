@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
  * Class Directory
  * @package Samhoud\FileManager
  */
-class Directory implements Contracts\FileSystemObject, Contracts\Directory
+class Directory implements Contracts\FilesystemObject, Contracts\Directory
 {
 
     /**
@@ -57,7 +57,7 @@ class Directory implements Contracts\FileSystemObject, Contracts\Directory
     /**
      * @param Contracts\FileSystemObject $item
      */
-    public function addItem(Contracts\FileSystemObject $item)
+    public function addItem(Contracts\FilesystemObject $item)
     {
         $this->items->push($item);
     }

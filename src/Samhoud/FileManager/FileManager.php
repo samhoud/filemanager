@@ -5,6 +5,9 @@ use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
+ *
+ * Basic Filemanager
+ *
  * Class FileManager
  * @package Samhoud\FileManager
  */
@@ -39,7 +42,6 @@ class FileManager extends Manager
      * @param array $arguments
      * @return string upload path
      * @throws \Exception if no path is set, throw exception
-     * @internal param array|null $uploadSettings
      */
     protected function path(array $arguments = null)
     {
@@ -54,7 +56,9 @@ class FileManager extends Manager
         if (array_key_exists('path', $uploadSettings)) {
             $path = $uploadSettings['path'];
         }
+
         if ($path === null) {
+
             throw new \Exception('cannot create path name. Incorrect configuration');
         }
 
@@ -81,15 +85,16 @@ class FileManager extends Manager
      * Upload a file
      *
      * @param mixed $file file to upload
-     * @param null $arguments
+     * @param null|array $arguments
      * @return bool result
      */
     public function upload($file, array $arguments = null)
     {
-        $this->checkUploadLocation($this->path($arguments));
-        $contents = file_get_contents($file);
+        $path = $this->path($arguments);
+        $this->checkUploadLocation($path);
+        $contents = Utils::getFileContents($file);
 
-        return $this->writeFile($this->makeUploadFileName($file), (string) $contents);
+        return $this->writeFile($this->makeUploadFileName($file, $path), (string) $contents);
     }
 
     /**
@@ -216,8 +221,7 @@ class FileManager extends Manager
      */
     public function listImages($path = null)
     {
-        $files = $this->convertFiles($this->filesystem->listFiles(), 'image');
-
+        $files = $this->getFilesInDirectory($path, 'image');
         return $files;
     }
 
@@ -228,54 +232,21 @@ class FileManager extends Manager
      */
     protected function getFilesInPath($path = null, $type = null)
     {
+
         $files = $this->filesystem->files($path);
+
         if (count($files) == 0) {
             return null;
         }
         $pathFiles = [];
         foreach ($files as $key => $file) {
-            $file = $this->makeFile($file);;
+            $file = $this->makeFile($file);
             if ($this->isAllowedType($file, $type)) {
-                $pathFiles[$key] = $file;
+                $pathFiles[] = $file;
             }
         }
 
         return $pathFiles;
-    }
-
-    /**
-     * @param $files
-     * @param null $type
-     * @return array
-     */
-    protected function convertFiles($files, $type = null)
-    {
-        $fileList = [];
-        foreach ($files as $file) {
-            $file = $this->convertFile($file, $type);
-            if ($file) {
-                $fileList[] = $file;
-            }
-        }
-
-        return $fileList;
-    }
-
-    /**
-     * @param $fileData
-     * @param $type
-     * @return null|File
-     */
-    protected function convertFile($fileData, $type)
-    {
-        if ($fileData['type'] == 'file') {
-            $file = $this->makeFile($fileData['path']);
-            if ($this->isAllowedType($file, $type)) {
-                return $file;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -287,6 +258,10 @@ class FileManager extends Manager
         return new File($this->getFileInfo($filename));
     }
 
+    /**
+     * @param $filename
+     * @return mixed
+     */
     protected function getFileInfo($filename)
     {
         $file = $this->filesystem->getFileInfo($filename);
@@ -305,6 +280,7 @@ class FileManager extends Manager
         if ($type === null) {
             return true;
         }
+
         if ($file instanceof UploadedFile) {
             $extension = $file->guessClientExtension();
             $mimetype = $file->getClientMimeType();
@@ -316,7 +292,6 @@ class FileManager extends Manager
         if (array_key_exists($extension, $mimes)) {
             return $mimes[$extension] == $mimetype;
         }
-
         return false;
     }
 
@@ -330,8 +305,9 @@ class FileManager extends Manager
         $files = $this->getFilesInPath($path, $type);
         $directory = new Directory($this->getBaseName($path), $path, new Collection($files, false));
         $directories = $this->filesystem->directories($path);
+
         if (count($directories) > 0) {
-            foreach ($this->filesystem->directories($path) as $childDirectory) {
+            foreach ($directories as $childDirectory) {
                 $directory->addItem($this->getFilesInDirectory($childDirectory, $type));
             }
         }
@@ -352,20 +328,20 @@ class FileManager extends Manager
 
 
     /**
-     * @param $file
+     * @param UploadedFile $file
+     * @param string $path
      * @return string
      */
-    protected function makeUploadFileName($file)
+    protected function makeUploadFileName(UploadedFile $file, $path)
     {
-        $filename = $this->path() . $file->getClientOriginalName();
+        $filename = $path . $file->getClientOriginalName();
         $i = 2;
         while ($this->filesystem->exists($filename)) {
-            $ext = $file->getClientOriginalExtension();
+            $ext = $file->getClientOriginalExtension();;
             $filename = $file->getClientOriginalName();
-            $filename = $this->path() . str_replace('.' . $ext, '_' . $i . '.' . $ext, $filename);
+            $filename = $path . str_replace('.' . $ext, '_' . $i . '.' . $ext, $filename);
             $i++;
         }
-
         return $filename;
     }
 }
