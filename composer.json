@@ -27,7 +27,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Samhoud\\FileManager\\": "src/Samhoud/FileManager"
+      "Samhoud\\FileManager\\": "src/Samhoud/FileManager",
+      "UnitTests\\": "src/tests/"
     }
   },
   "minimum-stability": "stable"
