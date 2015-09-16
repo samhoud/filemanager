@@ -1,17 +1,13 @@
 <?php
-namespace tests;
+namespace UnitTests\FileManager;
 
 use Illuminate\Support\Collection;
-use Mockery as m;
 use Samhoud\FileManager\Directory;
+use UnitTests\TestCase;
+use \Mockery as m;
 
-class DirectoryTest extends \PHPUnit_Framework_TestCase
+class DirectoryTest extends TestCase
 {
-
-    public function tearDown()
-    {
-        m::close();
-    }
 
     public function testConstructor()
     {
@@ -100,10 +96,10 @@ class DirectoryTest extends \PHPUnit_Framework_TestCase
         $file4 = m::mock('Samhoud\FileManager\File');
 
         $subdir1sub = new Directory('c', 'a/b/c', new Collection([$file1, $file2]));
-        $subdir1    = new Directory('b', 'a/b', new Collection([$subdir1sub]));
-        $subdir2    = new Directory('d', 'a/d', new Collection([$file3]));
+        $subdir1 = new Directory('b', 'a/b', new Collection([$subdir1sub]));
+        $subdir2 = new Directory('d', 'a/d', new Collection([$file3]));
 
-        $directory  = new Directory('a', 'a/', new Collection([$file4, $subdir1, $subdir2]));
+        $directory = new Directory('a', 'a/', new Collection([$file4, $subdir1, $subdir2]));
 
         $result = $directory->flatten();
 
