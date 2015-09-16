@@ -1,10 +1,11 @@
 <?php
-namespace tests;
+namespace UnitTests\FileManager;
 
 use Samhoud\FileManager\ImageManager;
 use \Mockery as m;
+use UnitTests\TestCase;
 
-class ImageManagerTest extends \PHPUnit_Framework_TestCase
+class ImageManagerTest extends TestCase
 {
 
     public $filesystem;
@@ -38,18 +39,19 @@ class ImageManagerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $fileManager->getSettings()->count());
     }
 
-    public function testUpload(){
+    public function testUpload()
+    {
         $this->basicExpectations();
 
-        $imageHandler   = m::mock(\Intervention\Image\ImageManager::class);
-        $image          = m::mock(\Intervention\Image\Image::class);
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $image = m::mock(\Intervention\Image\Image::class);
         $image->shouldReceive('encode');
 
 
-        $fileManager    = new ImageManager($this->filesystem, $imageHandler);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
 
         $this->filesystem->shouldReceive('exists')->twice()->andReturn(true, false);
-        $this->filesystem->shouldReceive('put')->once()->with('image.jpg', (string) $image)->andReturn(true);
+        $this->filesystem->shouldReceive('put')->once()->with('image.jpg', (string)$image->encode())->andReturn(true);
 
         $file = m::mock('Symfony\Component\HttpFoundation\File\UploadedFile');
         $file->shouldReceive('guessClientExtension')->andReturn('jpg');
@@ -65,13 +67,14 @@ class ImageManagerTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testUploadNonImage(){
+    public function testUploadNonImage()
+    {
         $this->basicExpectations();
 
-        $imageHandler   = m::mock(\Intervention\Image\ImageManager::class);
-        $fileManager    = new ImageManager($this->filesystem, $imageHandler);
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
 
-        $this->filesystem->shouldReceive('exists')->times(3)->andReturn(true,true, false);
+        $this->filesystem->shouldReceive('exists')->times(3)->andReturn(true, true, false);
         $this->filesystem->shouldReceive('put')->once()->with('file.txt', 'file contents')->andReturn(true);
 
         $file = m::mock('Symfony\Component\HttpFoundation\File\UploadedFile');
@@ -88,11 +91,12 @@ class ImageManagerTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function testUploadNonImageShouldFail(){
+    public function testUploadNonImageShouldFail()
+    {
         $this->basicExpectations();
 
-        $imageHandler   = m::mock(\Intervention\Image\ImageManager::class);
-        $fileManager    = new ImageManager($this->filesystem, $imageHandler);
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
         $fileManager->uploadNonImages = false;
 
         $this->filesystem->shouldReceive('exists')->times(1)->andReturn(true);

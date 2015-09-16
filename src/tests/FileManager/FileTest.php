@@ -1,35 +1,32 @@
 <?php
-namespace tests;
+namespace UnitTests\FileManager;
 
 use Samhoud\FileManager\File;
 use \Mockery as m;
+use UnitTests\TestCase;
 
-class FileTest extends \PHPUnit_Framework_TestCase
+class FileTest extends TestCase
 {
     private $file;
-    public function setUp() {
+
+    public function setUp()
+    {
 
         $args = [
-            'dirname'   => 'tests/images',
-            'basename'  => 'test.jpg',
+            'dirname' => 'tests/images',
+            'basename' => 'test.jpg',
             'extension' => 'jpg',
-            'filename'  => 'test',
-            'path'      => '2015/12/',
-            'fileRoot'  => '/uploads/'
+            'filename' => 'test',
+            'path' => '2015/12/',
+            'fileRoot' => '/uploads/'
         ];
         $this->file = new File($args);
     }
 
 
-    public function tearDown()
-    {
-        m::close();
-    }
-
-
     public function testSetFileInfoFromPath()
     {
-       $file = $this->file;
+        $file = $this->file;
 
         $this->assertEquals('tests/images', $file->dirname);
         $this->assertEquals('test.jpg', $file->basename);
@@ -39,21 +36,21 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
     public function testIsFile()
     {
-        $file  = $this->file;
+        $file = $this->file;
         $result = $file->isFile();
         $this->assertTrue($result);
     }
 
     public function testIsDirectory()
     {
-        $file  = $this->file;
+        $file = $this->file;
         $result = $file->isDirectory();
         $this->assertFalse($result);
     }
 
     public function testUrl()
     {
-        $utils  = m::mock('alias:Samhoud\FileManager\Utils');
+        $utils = m::mock('alias:Samhoud\FileManager\Utils');
         $utils->shouldReceive('makeUrl')->with('/uploads/2015/12/')->andReturn('http:///site.com/uploads/2015/12/');
         $result = $this->file->url();
         $this->assertEquals('http:///site.com/uploads/2015/12/', $result);

@@ -2,6 +2,7 @@
 namespace Samhoud\FileManager\Contracts;
 
 use Illuminate\Support\Collection;
+use Samhoud\FileManager\FilterHandler;
 
 /**
  * Interface FileManager
@@ -13,9 +14,10 @@ interface FileManager
     /**
      * @param $file
      * @param array|null $arguments
+     * @param FilterHandler $filterHandler
      * @return mixed
      */
-    public function upload($file, array $arguments = null);
+    public function upload($file, array $arguments = null, FilterHandler $filterHandler = null);
 
     /**
      * @param \Samhoud\FileManager\Contracts\Filesystem $filesystem
@@ -93,6 +95,5 @@ interface FileManager
      * @return mixed
      */
     public function listFiles($path = null, $type = null);
-
 
 }

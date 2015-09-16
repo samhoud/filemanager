@@ -34,4 +34,28 @@ return [
 * default : ['path' => '']
 */
 'uploadlocation'    => ['path' => ''],
+
+
+/**
+ * Templates:
+ * Provide image filter templates
+ * Provide desired pixels for width and height
+ * options:
+ * 'TEMPLATENAME' => [
+ *      width:              int (default: null)
+ *      height:             int (default: null)
+ *      keepAspectRatio:    bool (default: true)
+ *      preventUpsizing:    bool (default: false)
+ * ]
+ */
+'templates' => [
+    'default' => [
+        'width'             => 600,
+        'height'            => 400,
+        'keepAspectRatio'   => true,
+        'preventUpsizing'   => true,
+    ],
+],
+
+
 ];

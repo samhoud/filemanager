@@ -1,12 +1,13 @@
 <?php
-namespace tests;
+namespace UnitTests\FileManager;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use \Mockery as m;
 use Samhoud\FileManager\FilesystemAdapter;
+use UnitTests\TestCase;
 
-class FilesystemAdapterTest extends \PHPUnit_Framework_TestCase
+class FilesystemAdapterTest extends TestCase
 {
 
     public $utils;
@@ -18,10 +19,11 @@ class FilesystemAdapterTest extends \PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function setUp(){
-        $this->utils                = m::mock('alias:Samhoud\FileManager\Utils');
-        $this->driver               = m::mock(FilesystemInterface::class);
-        $this->filesystemAdapter    = new FilesystemAdapter($this->driver);
+    public function setUp()
+    {
+        $this->utils = m::mock('alias:Samhoud\FileManager\Utils');
+        $this->driver = m::mock(FilesystemInterface::class);
+        $this->filesystemAdapter = new FilesystemAdapter($this->driver);
     }
 
     public function testGetFileInfo()
