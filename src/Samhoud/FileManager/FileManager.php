@@ -24,14 +24,14 @@ class FileManager extends Manager
      */
     protected $filters = [
         'image' => [
-            'jpg'  => 'image/jpeg',
+            'jpg' => 'image/jpeg',
             'jpeg' => 'image/jpeg',
-            'jpe'  => 'image/jpeg',
-            'png'  => 'image/png',
-            'gif'  => 'image/gif',
-            'bmp'  => 'image/bmp',
+            'jpe' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'bmp' => 'image/bmp',
             'tiff' => 'image/tiff',
-            'tif'  => 'image/tiff'
+            'tif' => 'image/tiff'
         ]
     ];
 
@@ -86,13 +86,16 @@ class FileManager extends Manager
      * @param null|array $arguments
      * @return bool result
      */
-    public function upload($file, array $arguments = null)
+    public function upload($file, array $arguments = null, FilterHandler $filterHandler = null)
     {
         $path = $this->path($arguments);
         $this->checkUploadLocation($path);
+
+        $file = $this->applyFilters($filterHandler, $file);
+
         $contents = Utils::getFileContents($file);
 
-        return $this->writeFile($this->makeUploadFileName($file, $path), (string) $contents);
+        return $this->writeFile($this->makeUploadFileName($file, $path), (string)$contents);
     }
 
     /**
@@ -105,7 +108,7 @@ class FileManager extends Manager
      */
     protected function writeFile($filename, $contents)
     {
-        return $this->filesystem->put($filename, (string) $contents);
+        return $this->filesystem->put($filename, (string)$contents);
     }
 
     /**

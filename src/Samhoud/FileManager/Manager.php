@@ -2,6 +2,7 @@
 namespace Samhoud\FileManager;
 
 use Illuminate\Support\Collection;
+use Intervention\Image\Image;
 use Samhoud\FileManager\Contracts\Filesystem;
 
 /**
@@ -29,17 +30,28 @@ abstract class Manager implements Contracts\FileManager
     /**
      * @param Filesystem $filesystem
      * @param Collection $settings
+     * @param Collection $fileEditors
      */
     public function __construct(Filesystem $filesystem, Collection $settings = null)
+    {
+
+        $this->settings = $this->checkSettings($settings);
+        $this->setFilesystem($filesystem);
+    }
+
+    /**
+     * @param Collection|null $settings
+     * @return array|Collection
+     */
+    private function checkSettings(Collection $settings = null)
     {
         if ($settings === null) {
             $settings = [
                 'uploadSettings' => ['path' => "."],
             ];
-            $settings = new Collection($settings);
+            return new Collection($settings);
         }
-        $this->settings = $settings;
-        $this->setFilesystem($filesystem);
+        return $settings;
     }
 
     /**
@@ -123,6 +135,20 @@ abstract class Manager implements Contracts\FileManager
     public function getPublicRoot()
     {
         return $this->publicRoot;
+    }
+
+
+    /**
+     * @param FilterHandler|null $filterHandler
+     * @param $file
+     * @return File|Image
+     */
+    protected function applyFilters(FilterHandler $filterHandler = null, $file)
+    {
+        if ($filterHandler) {
+            $file = $filterHandler->handle($file);
+        }
+        return $file;
     }
 
     /**

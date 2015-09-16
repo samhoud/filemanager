@@ -44,15 +44,14 @@ class ImageManager extends FileManager implements Contracts\ImageFileManager
      * @param null $arguments
      * @return bool
      */
-    public function upload($file, array $arguments = null)
+    public function upload($file, array $arguments = null, FilterHandler $filterHandler = null)
     {
-        $path = $path = $this->path($arguments);
+        $path = $this->path($arguments);
         $this->checkUploadLocation($path);
         if ($this->isImage($file)) {
-            $contents = $this->imageHandler->make($file);
-            $contents->encode();
-
-            return $this->writeFile($this->makeUploadFileName($file, $path), (string) $contents);
+            $image = $this->imageHandler->make($file);
+            $image = $this->applyFilters($filterHandler, $image);
+            return $this->writeFile($this->makeUploadFileName($file, $path), (string)$image->encode());
         }
 
         return ($this->uploadNonImages ? parent::upload($file, $arguments) : false);
