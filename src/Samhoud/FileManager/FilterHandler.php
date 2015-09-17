@@ -44,7 +44,7 @@ class FilterHandler
      * @param Contracts\File $file
      * @return Contracts\File|Image
      */
-    public function handle(Contracts\File $file)
+    public function handle($file)
     {
         if (count($this->filters()) == 0) {
             return $file;

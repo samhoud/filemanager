@@ -23,7 +23,7 @@ Add the github repository and the package to your `composer.json` and run ```com
         }
     ],
     "require": {
-        "samhoud/filemanager": "0.2.*"
+        "samhoud/filemanager": "0.3.*"
     }
 }
 ```
