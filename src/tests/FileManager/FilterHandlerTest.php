@@ -58,4 +58,16 @@ class FilterHandlerTest extends TestCase
 
         $this->assertEquals(2, $handler->edits());
     }
+
+    public function testAddFilter(){
+        $editor1 = m::mock(FilterInterface::class);
+        $editor2 = m::mock(FilterInterface::class);
+
+
+        //act
+        $handler = new FilterHandler([$editor1]);
+        $handler->add($editor2);
+
+        $this->assertEquals(2, count($handler->filters()));
+    }
 }

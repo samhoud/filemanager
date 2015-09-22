@@ -5,6 +5,7 @@ namespace Samhoud\FileManager;
 
 use Intervention\Image\Image;
 use Samhoud\FileManager\Filters\Contracts\FileFilterInterface;
+use Samhoud\FileManager\Filters\Contracts\FilterInterface;
 use Samhoud\FileManager\Filters\Contracts\ImageFilterInterface;
 
 
@@ -38,6 +39,13 @@ class FilterHandler
     public function filters()
     {
         return $this->filters->all();
+    }
+
+    /**
+     * @param FilterInterface $filter
+     */
+    public function add(FilterInterface $filter){
+        $this->filters->add($filter);
     }
 
     /**
