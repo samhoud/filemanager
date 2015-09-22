@@ -38,6 +38,10 @@ class ImageManager extends FileManager implements Contracts\ImageFileManager
     }
 
 
+    public function make($data){
+        return $this->imageHandler->make($data);
+    }
+
     /**
      *
      * upload an image. If not an image, upload as file

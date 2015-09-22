@@ -158,4 +158,20 @@ class ImageManagerTest extends TestCase
 
         $fileManager->edit($image, $filterHandler);
     }
+
+    public function testMakeImage(){
+        $this->basicExpectations();
+
+        $image = m::mock(Image::class);
+
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+
+        $imageHandler->shouldReceive('make')->with('/path/to/image.jpg')->andReturn($image);
+
+        $result = $fileManager->make('/path/to/image.jpg');
+
+        $this->assertEquals($image, $result);
+
+    }
 }
