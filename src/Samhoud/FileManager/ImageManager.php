@@ -2,7 +2,9 @@
 namespace Samhoud\FileManager;
 
 use Illuminate\Support\Collection;
+use Intervention\Image\Image;
 use Samhoud\FileManager\Contracts\Filesystem;
+use Samhoud\FileManager\Exceptions\FileNotFoundException;
 
 /**
  * Class ImageManager
@@ -55,5 +57,13 @@ class ImageManager extends FileManager implements Contracts\ImageFileManager
         }
 
         return ($this->uploadNonImages ? parent::upload($file, $arguments) : false);
+    }
+
+    public function edit(Image $image, FilterHandler $filterHandler = null){
+        if(!$this->fileExists($image->basePath())){
+            throw new FileNotFoundException('File not found at: ' . $image->basePath());
+        }
+        $image = $this->applyFilters($filterHandler, $image);
+        return $image->save();
     }
 }

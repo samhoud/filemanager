@@ -1,9 +1,11 @@
 <?php
 namespace UnitTests\FileManager;
 
+use Samhoud\FileManager\FilterHandler;
 use Samhoud\FileManager\ImageManager;
 use \Mockery as m;
 use UnitTests\TestCase;
+use Intervention\Image\Image;
 
 class ImageManagerTest extends TestCase
 {
@@ -114,4 +116,46 @@ class ImageManagerTest extends TestCase
 
     }
 
+    public function testEditImage(){
+        $this->basicExpectations();
+
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+        // arrange
+        $image = m::mock(Image::class);
+        $image->shouldReceive('save')->once()->andReturnSelf();
+        $image->shouldReceive('basePath')->once()->andReturn('/path/to/image.jpg');
+
+        $this->filesystem->shouldReceive('exists')->once()->with('/path/to/image.jpg')->andReturn(true);
+
+        $filterHandler = m::mock(FilterHandler::class);
+        $filterHandler->shouldReceive('handle')->once()->with($image)->andReturn($image);
+
+        //act
+        $result = $fileManager->edit($image, $filterHandler);
+
+        //assert
+        $this->assertEquals($image, $result);
+    }
+
+    /**
+     * @expectedException \Samhoud\FileManager\Exceptions\FileNotFoundException
+     * @expectedExceptionMessage File not found at: /path/to/image.jpg
+     */
+    public function testEditImageFailsIfImageIsNotFound(){
+        $this->basicExpectations();
+
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+        // arrange
+        $image = m::mock(Image::class);
+        $image->shouldReceive('basePath')->twice()->andReturn('/path/to/image.jpg');
+
+        $this->filesystem->shouldReceive('exists')->once()->with('/path/to/image.jpg')->andReturn(false);
+
+
+        $filterHandler = m::mock(FilterHandler::class);
+
+        $fileManager->edit($image, $filterHandler);
+    }
 }

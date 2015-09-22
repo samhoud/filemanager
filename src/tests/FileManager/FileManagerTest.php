@@ -4,6 +4,7 @@ namespace UnitTests\FileManager;
 use Illuminate\Support\Collection;
 use Samhoud\FileManager\FileManager;
 use Samhoud\FileManager\File;
+use Samhoud\FileManager\FilterHandler;
 use UnitTests\TestCase;
 use \Mockery as m;
 
@@ -129,6 +130,28 @@ class FileManagerTest extends TestCase
         $this->utils->shouldReceive('getFileContents')->once()->with($file)->andReturn('file contents');
 
         $result = $fileManager->upload($file, ['uploadSettings' => ['date' => 'Y/m']]);
+
+        $this->assertTrue($result);
+    }
+
+    public function testUploadWithFilters()
+    {
+        $this->basicExpectations();
+        $fileManager = new FileManager($this->filesystem);
+        $this->filesystem->shouldReceive('exists')->twice()->andReturn(true, false);
+        $this->filesystem->shouldReceive('put')->once()->with('file.txt', 'file contents')->andReturn(true);
+
+        $file = m::mock('Symfony\Component\HttpFoundation\File\UploadedFile');
+        $file->shouldReceive('getClientOriginalName')->andReturn('file.txt');
+        $file->shouldReceive('getClientMimeType')->andReturn('text/plain');
+        $file->shouldReceive('getClientOriginalExtension')->andReturn('txt');
+
+        $filterHandler = m::mock(FilterHandler::class);
+        $filterHandler->shouldReceive('handle')->once()->with($file)->andReturn($file);
+
+        $this->utils->shouldReceive('getFileContents')->once()->with($file)->andReturn('file contents');
+
+        $result = $fileManager->upload($file, null, $filterHandler);
 
         $this->assertTrue($result);
     }
