@@ -1,6 +1,7 @@
 <?php
 namespace UnitTests\FileManager;
 
+use Samhoud\FileManager\File;
 use Samhoud\FileManager\FilterHandler;
 use Samhoud\FileManager\ImageManager;
 use \Mockery as m;
@@ -117,22 +118,27 @@ class ImageManagerTest extends TestCase
     }
 
     public function testEditImage(){
+        // arrange
         $this->basicExpectations();
 
+
+        $path = 'path/to/image.jpg';
+        $fullPath = '/path/to/public/uploads/path/to/image.jpg';
         $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+
         $fileManager = new ImageManager($this->filesystem, $imageHandler);
-        // arrange
+
         $image = m::mock(Image::class);
         $image->shouldReceive('save')->once()->andReturnSelf();
-        $image->shouldReceive('basePath')->once()->andReturn('/path/to/image.jpg');
+        $imageHandler->shouldReceive('make')->once()->with($fullPath)->andReturn($image);
 
-        $this->filesystem->shouldReceive('exists')->once()->with('/path/to/image.jpg')->andReturn(true);
+        $this->filesystem->shouldReceive('exists')->once()->with($path)->andReturn(true);
 
         $filterHandler = m::mock(FilterHandler::class);
         $filterHandler->shouldReceive('handle')->once()->with($image)->andReturn($image);
 
         //act
-        $result = $fileManager->edit($image, $filterHandler);
+        $result = $fileManager->edit($path, $filterHandler);
 
         //assert
         $this->assertEquals($image, $result);
@@ -140,7 +146,7 @@ class ImageManagerTest extends TestCase
 
     /**
      * @expectedException \Samhoud\FileManager\Exceptions\FileNotFoundException
-     * @expectedExceptionMessage File not found at: /path/to/image.jpg
+     * @expectedExceptionMessage Image not found at: /path/to/unknown_image.jpg
      */
     public function testEditImageFailsIfImageIsNotFound(){
         $this->basicExpectations();
@@ -149,14 +155,12 @@ class ImageManagerTest extends TestCase
         $fileManager = new ImageManager($this->filesystem, $imageHandler);
         // arrange
         $image = m::mock(Image::class);
-        $image->shouldReceive('basePath')->twice()->andReturn('/path/to/image.jpg');
 
-        $this->filesystem->shouldReceive('exists')->once()->with('/path/to/image.jpg')->andReturn(false);
-
-
+        $this->filesystem->shouldReceive('exists')->once()->with('/path/to/unknown_image.jpg')->andReturn(false);
         $filterHandler = m::mock(FilterHandler::class);
 
-        $fileManager->edit($image, $filterHandler);
+
+        $fileManager->edit('/path/to/unknown_image.jpg', $filterHandler);
     }
 
     public function testMakeImage(){
@@ -167,11 +171,111 @@ class ImageManagerTest extends TestCase
         $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
         $fileManager = new ImageManager($this->filesystem, $imageHandler);
 
-        $imageHandler->shouldReceive('make')->with('/path/to/image.jpg')->andReturn($image);
+        $imageHandler->shouldReceive('make')->with('/path/to/public/uploads/path/to/image.jpg')->andReturn($image);
 
-        $result = $fileManager->make('/path/to/image.jpg');
+        $result = $fileManager->make('path/to/image.jpg');
 
         $this->assertEquals($image, $result);
+    }
 
+    public function testIsImageForUploadedFile()
+    {
+        $this->basicExpectations();
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+
+        $file = m::mock('Symfony\Component\HttpFoundation\File\UploadedFile');
+        $file->shouldReceive('guessClientExtension')->andReturn('jpg');
+        $file->shouldReceive('getClientMimeType')->andReturn('image/jpeg');
+
+
+        $this->assertTrue($fileManager->isImage($file));
+    }
+
+    public function testIsImageForImage()
+    {
+        $this->basicExpectations();
+
+        $image = m::mock(Image::class);
+
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+
+
+        $this->assertTrue($fileManager->isImage($image));
+    }
+
+    public function testIsImageForNonImage()
+    {
+        $this->basicExpectations();
+
+        $nonImage = m::mock(File::class);
+
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+
+
+        $this->assertFalse($fileManager->isImage($nonImage));
+    }
+
+    public function testListImages()
+    {
+        $this->basicExpectations();
+        $imageHandler = m::mock(\Intervention\Image\ImageManager::class);
+        $fileManager = new ImageManager($this->filesystem, $imageHandler);
+
+        $image = m::mock(Image::class);
+
+        $imageHandler->shouldReceive('make')->with('/path/to/public/uploads/2015/12/image.jpg')->andReturn($image);
+
+        $fileNames = ['file1.txt', 'file2.txt', 'image.jpg'];
+
+        $filesData1 =
+            [
+                'dirname' => 'path/to/files',
+                'basename' => 'file1.txt',
+                'extension' => 'txt',
+                'filename' => 'file1',
+                'path' => '2015/12/',
+                'fileRoot' => '/uploads/',
+                'mimetype' => 'text/plain'
+            ];
+        $filesData2 =
+            [
+                'dirname' => 'path/to/files',
+                'basename' => 'file1.txt',
+                'extension' => 'txt',
+                'filename' => 'file1',
+                'path' => '2015/12/',
+                'fileRoot' => '/uploads/',
+                'mimetype' => 'text/plain'
+            ];
+
+        $filesData3 =
+            [
+                'dirname' => 'path/to/files',
+                'basename' => 'image.jpg',
+                'extension' => 'jpg',
+                'filename' => 'image',
+                'path' => '2015/12/image.jpg',
+                'mimetype' => 'image/jpeg'
+            ];
+
+
+        $this->filesystem->shouldReceive('getFileInfo')->once()->with("file1.txt")->andReturn($filesData1);
+        $this->filesystem->shouldReceive('getFileInfo')->once()->with("file2.txt")->andReturn($filesData2);
+        $this->filesystem->shouldReceive('getFileInfo')->once()->with("image.jpg")->andReturn($filesData3);
+        $this->filesystem->shouldReceive('files')->once()->with("path/to/files")->andReturn(null);
+        $this->filesystem->shouldReceive('files')->once()->with("2015")->andReturn(null);
+        $this->filesystem->shouldReceive('files')->once()->with("2015/12")->andReturn($fileNames);
+
+        //$this->filesystem->shouldReceive('files')->times(3)->with("path/to/files", '2015', '2015/12')->andReturn(null,null,$fileNames);
+        $this->filesystem->shouldReceive('directories')->once()->with("path/to/files")->andReturn(['2015']);
+        $this->filesystem->shouldReceive('directories')->once()->with("2015")->andReturn(['2015/12']);
+        $this->filesystem->shouldReceive('directories')->once()->with("2015/12")->andReturn(null);
+
+        $result = $fileManager->listImages("path/to/files");
+
+        $this->assertInstanceOf(Image::class, $result->first());
     }
 }

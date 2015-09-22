@@ -2,6 +2,7 @@
 namespace Samhoud\FileManager;
 
 use Illuminate\Support\Collection;
+use Intervention\Image\Image;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -110,7 +111,6 @@ class FileManager extends Manager
     {
         return $this->filesystem->put($filename, (string)$contents);
     }
-
     /**
      *
      * Check if file is an image based on mime type
@@ -122,6 +122,7 @@ class FileManager extends Manager
     {
         return $this->isAllowedType($file, 'image');
     }
+
 
     /**
      * @param Contracts\Directory $directory
@@ -223,7 +224,7 @@ class FileManager extends Manager
         $items = $this->getFilesInDirectory($path, $type);
 
         return $items;
-    }
+     }
 
     /**
      * @param null|string $path path to directory
@@ -232,9 +233,9 @@ class FileManager extends Manager
     public function listImages($path = null)
     {
         $files = $this->getFilesInDirectory($path, 'image');
-
         return $files;
     }
+
 
     /**
      * @param null|string $path path to directory
